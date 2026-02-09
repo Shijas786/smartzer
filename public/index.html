@@ -20,21 +20,21 @@
         </div>
 
         <div class="nav-label">Platform</div>
-        <a href="#" class="nav-item active">
+        <a href="#" class="nav-item active" id="nav-dashboard">
             <span>📊</span> Dashboard
         </a>
-        <a href="#" class="nav-item">
+        <a href="#" class="nav-item" id="nav-whales">
             <span>🐋</span> Whale Tracker
         </a>
-        <a href="#" class="nav-item">
+        <a href="#" class="nav-item" id="nav-identity">
             <span>🛡️</span> Identity Registry
         </a>
 
         <div class="nav-label">System</div>
-        <a href="#" class="nav-item">
+        <a href="#" class="nav-item" id="nav-settings">
             <span>⚙️</span> Settings
         </a>
-        <a href="#" class="nav-item">
+        <a href="#" class="nav-item" id="nav-docs">
             <span>📖</span> Documentation
         </a>
 
@@ -61,96 +61,130 @@
         </header>
 
         <main class="content-container">
-            <section class="header-section">
-                <h1>Intelligence HUD</h1>
-                <p>Autonomous monitoring of ultra-high PnL wallet addresses on the Base network.</p>
-            </section>
+            <!-- TAB: Dashboard -->
+            <div id="tab-dashboard" class="tab-content active">
+                <section class="header-section">
+                    <h1>Intelligence HUD</h1>
+                    <p>Autonomous monitoring of ultra-high PnL wallet addresses on the Base network.</p>
+                </section>
 
-            <!-- Metrics -->
-            <div class="dash-grid">
-                <div class="metric-card">
-                    <div class="metric-label">Volatility Assets</div>
-                    <div class="metric-value" style="color: var(--accent)">$420.69</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Targets Tracked</div>
-                    <div class="metric-value" id="trader-count">0</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Verified Trades</div>
-                    <div class="metric-value" id="trade-count">0</div>
-                </div>
-            </div>
-
-            <!-- Market Watch -->
-            <div id="market-watch"
-                style="margin-bottom: 2.5rem; display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem;">
-                <!-- Filled by JS -->
-            </div>
-
-            <div class="layout-split">
-                <!-- Left: Trade Stream -->
-                <div class="section-card">
-                    <div class="card-header">
-                        <div class="card-title">LIVE TRADE STREAM</div>
-                        <div class="time-stamp">SYNC_100%</div>
+                <!-- Metrics -->
+                <div class="dash-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Volatility Assets</div>
+                        <div class="metric-value" style="color: var(--accent)">$420.69</div>
                     </div>
-                    <div id="replicated-trades" class="scroll-area">
-                        <div class="stream-item">
-                            <div class="item-top">
-                                <span class="type-tag buy">SYSTEM_SCAN</span>
-                                <span class="time-stamp">Awaiting volatility...</span>
-                            </div>
-                            <div class="item-content">
-                                Searching for high-conviction movements in the <span>Base</span> ecosystem.
-                            </div>
-                        </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Targets Tracked</div>
+                        <div class="metric-value" id="trader-count">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Verified Trades</div>
+                        <div class="metric-value" id="trade-count">0</div>
                     </div>
                 </div>
 
-                <!-- Right: Alpha & Logs -->
-                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                    <!-- Alpha List -->
+                <!-- Market Watch -->
+                <div id="market-watch"
+                    style="margin-bottom: 2.5rem; display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem;">
+                    <!-- Filled by JS -->
+                </div>
+
+                <div class="layout-split">
+                    <!-- Left: Trade Stream -->
                     <div class="section-card">
                         <div class="card-header">
-                            <div class="card-title">ALPHA POOL</div>
+                            <div class="card-title">LIVE TRADE STREAM</div>
+                            <div class="time-stamp">SYNC_100%</div>
                         </div>
-                        <div id="alpha-list" class="scroll-area" style="max-height: 250px;">
-                            <div style="color: var(--text-dim); font-size: 0.8rem;">Initializing targets...</div>
-                        </div>
-                    </div>
-
-                    <!-- Agent Nodes -->
-                    <div class="section-card" style="margin-bottom: 1.5rem;">
-                        <div class="card-header">
-                            <div class="card-title">ACTIVE AI NODES</div>
-                            <div class="time-stamp">AUTO_SYNC</div>
-                        </div>
-                        <div id="agent-nodes" style="padding: 1rem;">
-                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-                                <div
-                                    style="width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success);">
+                        <div id="replicated-trades" class="scroll-area">
+                            <div class="stream-item">
+                                <div class="item-top">
+                                    <span class="type-tag buy">SYSTEM_SCAN</span>
+                                    <span class="time-stamp">Awaiting volatility...</span>
                                 </div>
-                                <span style="font-size: 0.8rem; color: #fff;">SMARTZER_BASE_01 (This Node)</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 0.75rem; opacity: 0.6;">
-                                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent);">
+                                <div class="item-content">
+                                    Searching for high-conviction movements in the <span>Base</span> ecosystem.
                                 </div>
-                                <span style="font-size: 0.8rem; color: #fff;">CLANKER_RELAY_V2 (Observing)</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Terminal Logs -->
-                    <div class="section-card" style="background: #000;">
-                        <div class="card-header" style="background: #111;">
-                            <div class="card-title" style="font-size: 0.7rem;">PROCESS_LOG (PID: 8453)</div>
+                    <!-- Right: Alpha & Logs -->
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <!-- Alpha List -->
+                        <div class="section-card">
+                            <div class="card-header">
+                                <div class="card-title">ALPHA POOL</div>
+                            </div>
+                            <div id="alpha-list" class="scroll-area" style="max-height: 250px;">
+                                <div style="color: var(--text-dim); font-size: 0.8rem;">Initializing targets...</div>
+                            </div>
                         </div>
-                        <div id="thought-log" class="scroll-area" style="max-height: 300px;">
-                            <div class="log-line"><span>></span> Initializing neural link...</div>
-                            <div class="log-line"><span>></span> Establishing Base connection...</div>
+
+                        <!-- Agent Nodes -->
+                        <div class="section-card" style="margin-bottom: 1.5rem;">
+                            <div class="card-header">
+                                <div class="card-title">ACTIVE AI NODES</div>
+                                <div class="time-stamp">AUTO_SYNC</div>
+                            </div>
+                            <div id="agent-nodes" style="padding: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                    <div
+                                        style="width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success);">
+                                    </div>
+                                    <span style="font-size: 0.8rem; color: #fff;">SMARTZER_BASE_01 (This Node)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.75rem; opacity: 0.6;">
+                                    <div
+                                        style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent);">
+                                    </div>
+                                    <span style="font-size: 0.8rem; color: #fff;">CLANKER_RELAY_V2 (Observing)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Terminal Logs -->
+                        <div class="section-card" style="background: #000;">
+                            <div class="card-header" style="background: #111;">
+                                <div class="card-title" style="font-size: 0.7rem;">PROCESS_LOG (PID: 8453)</div>
+                            </div>
+                            <div id="thought-log" class="scroll-area" style="max-height: 300px;">
+                                <div class="log-line"><span>></span> Initializing neural link...</div>
+                                <div class="log-line"><span>></span> Establishing Base connection...</div>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- TAB: Whale Tracker -->
+            <div id="tab-whales" class="tab-content" style="display: none;">
+                <section class="header-section">
+                    <h1>Real-Time Whale Tracking</h1>
+                    <p>Deep-dive monitoring of on-chain liquidity providers and high-net-worth movers.</p>
+                </section>
+
+                <div class="section-card">
+                    <div class="card-header">
+                        <div class="card-title">LARGE SCALE MOVEMENTS</div>
+                    </div>
+                    <div style="padding: 2rem; text-align: center; opacity: 0.5;">
+                        <span style="font-size: 3rem;">🛰️</span><br><br>
+                        Establishing high-bandwidth connection to Zerion Whale Feed...<br>
+                        <i style="font-size: 0.8rem;">Real-time transaction stream will appear here.</i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Placeholder for other tabs -->
+            <div id="tab-identity" class="tab-content" style="display: none;">
+                <section class="header-section">
+                    <h1>Identity Registry</h1>
+                    <p>Resolving wallet addresses to Farcaster profiles and Base Names.</p>
+                </section>
+                <div class="section-card" style="padding: 2rem; text-align: center; opacity: 0.5;">
+                    IDENTITY_LOG_OFFLINE
                 </div>
             </div>
         </main>

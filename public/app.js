@@ -118,5 +118,38 @@ async function updateDashboard() {
     }
 }
 
+// --- TAB SWITCHING LOGIC ---
+function switchTab(tabId) {
+    // 1. Update Navigation UI
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    const activeNav = document.getElementById(`nav-${tabId}`);
+    if (activeNav) activeNav.classList.add('active');
+
+    // 2. Hide all tabs, show selected
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+        tab.classList.remove('active');
+    });
+
+    const targetTab = document.getElementById(`tab-${tabId}`);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+        targetTab.classList.add('active');
+    }
+
+    // 3. Update breadcrumb
+    const breadcrumb = document.querySelector('.breadcrumb b');
+    if (breadcrumb) {
+        breadcrumb.innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1);
+    }
+}
+
+// Navigation Listeners
+document.getElementById('nav-dashboard')?.addEventListener('click', (e) => { e.preventDefault(); switchTab('dashboard'); });
+document.getElementById('nav-whales')?.addEventListener('click', (e) => { e.preventDefault(); switchTab('whales'); });
+document.getElementById('nav-identity')?.addEventListener('click', (e) => { e.preventDefault(); switchTab('identity'); });
+
 updateDashboard();
 setInterval(updateDashboard, 10000);
