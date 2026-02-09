@@ -1,83 +1,85 @@
 async function updateDashboard() {
     try {
         const stateResponse = await fetch('/api/state');
+        if (!stateResponse.ok) throw new Error(`API Error: ${stateResponse.status}`);
         const state = await stateResponse.json();
 
-        // 1. Fund Stats
+        // 1. Stats
         document.getElementById('trader-count').innerText = state.followedTraders?.length || 0;
         document.getElementById('trade-count').innerText = state.replicatedTrades?.length || 0;
 
-        // 2. Verified Alpha List (Followed)
+        // 2. Alpha Pool Rendering
         const alphaList = document.getElementById('alpha-list');
         let alphaHTML = '';
 
-        if (state.anonymousSuperTraders) {
-            alphaHTML += `<div style="font-size: 0.7rem; color: var(--primary); margin-bottom: 0.5rem;">🐋 ANONYMOUS WHALES</div>`;
+        if (state.anonymousSuperTraders && state.anonymousSuperTraders.length > 0) {
+            alphaHTML += `<div style="font-size: 0.65rem; color: var(--accent); margin-bottom: 0.75rem; font-weight: 700;">🐋 WHALE WALLETS</div>`;
             alphaHTML += state.anonymousSuperTraders.slice(0, 3).map(t => `
-                <div class="stat-row">
-                    <span class="stat-label">${t.label}</span>
-                    <span class="stat-value" style="color: var(--accent)">+$${t.pnl.toFixed(0)}</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem;">
+                    <span style="color: var(--text-primary)">${t.label}</span>
+                    <span style="color: var(--success); font-weight: 600;">+$${t.pnl.toLocaleString()}</span>
                 </div>
             `).join('');
         }
 
         if (state.followedTraders && state.followedTraders.length > 0) {
-            alphaHTML += `<div style="font-size: 0.7rem; color: var(--secondary); margin: 0.5rem 0;">👤 SOCIAL TRADERS</div>`;
+            alphaHTML += `<div style="font-size: 0.65rem; color: var(--secondary-accent); margin: 1rem 0 0.75rem 0; font-weight: 700;">👤 SOCIAL TRADERS</div>`;
             alphaHTML += state.followedTraders.slice(0, 3).map(t => `
-                <div class="stat-row">
-                    <span class="stat-label">@${t.username}</span>
-                    <span class="stat-value" style="color: var(--accent)">+$${t.pnl.toFixed(0)}</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem;">
+                    <span style="color: var(--text-primary)">@${t.username}</span>
+                    <span style="color: var(--success); font-weight: 600;">+$${t.pnl.toLocaleString()}</span>
                 </div>
             `).join('');
         }
+
+        if (alphaHTML === '') alphaHTML = '<div style="opacity:0.4; font-size: 0.8rem;">No active targets.</div>';
         alphaList.innerHTML = alphaHTML;
 
-        // 3. Replicated Trades Stream
+        // 3. Trade Stream Rendering (Modern Style)
         const tradeGrid = document.getElementById('replicated-trades');
         if (state.replicatedTrades && state.replicatedTrades.length > 0) {
             tradeGrid.innerHTML = state.replicatedTrades.sort((a, b) => b.timestamp - a.timestamp).map(t => {
                 const isSell = t.side === 'SELL';
-                const color = isSell ? '#FF5252' : '#2962FF'; // Red (Sell) vs Zerion Blue (Buy)
+                const tagClass = isSell ? 'sell' : 'buy';
                 return `
-                <div class="stream-item" style="border-left-color: ${color}">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span style="color:${color}; font-weight:bold;">${t.side} DETECTED</span>
-                        <span style="opacity:0.5; font-size:0.7rem;">${new Date(t.timestamp).toLocaleTimeString()}</span>
+                <div class="stream-item">
+                    <div class="item-top">
+                        <span class="type-tag ${tagClass}">${t.side} DETECTED</span>
+                        <span class="time-stamp">${new Date(t.timestamp).toLocaleTimeString()}</span>
                     </div>
-                    <div style="margin-top:4px;">
-                        TARGET: <span style="color:#fff">${t.trader}</span><br>
-                        ASSET: <span style="color:#fff">${t.token}</span><br>
-                        CHAIN: <span style="color:var(--secondary-accent)">${t.chain || 'Global'}</span>
+                    <div class="item-content">
+                        ${t.trader} moved <span>${t.token}</span> on <span>${t.chain || 'Base'}</span>
                     </div>
                 </div>
                 `;
             }).join('');
+        } else {
+            tradeGrid.innerHTML = '<div style="opacity:0.4; font-size: 0.85rem; padding: 1rem 0;">Awaiting first on-chain signal...</div>';
         }
 
-        // 4. Ticker Tape Logic (Simplified)
-        async function updateTicker() {
-            // We just grab raw data and put it in the footer
-            // This is a simplified "sci-fi" approach
-        }
-
-
-        // 5. Intelligence Log Rendering
+        // 4. Intelligence Logs (Terminal Style)
         const logContainer = document.getElementById('thought-log');
         if (state.logs && state.logs.length > 0) {
-            logContainer.innerHTML = state.logs.map(log => `<div class="log-entry">${log.text}</div>`).join('');
+            logContainer.innerHTML = state.logs.map(log => `
+                <div class="log-line"><span>></span> ${log.text}</div>
+            `).join('');
             logContainer.scrollTop = 0;
         }
 
-        // 6. Dynamic Score update
-        if (state.replicatedTrades && state.replicatedTrades.length > 0) {
-            document.getElementById('zer-score').innerText = '99.9 PROTOCOL CALIBRATED';
-            document.getElementById('zer-score').style.color = 'var(--accent)';
+        // 5. System Status
+        if (state.lastCheck > 0) {
+            document.getElementById('zer-score').innerText = 'PROTOCOL ONLINE';
+            document.getElementById('zer-score').closest('.status-badge').style.borderColor = 'rgba(0, 230, 118, 0.4)';
         }
 
     } catch (error) {
-        console.error("Dashboard update failed:", error);
+        console.error("HUD Sync Error:", error);
+        const logContainer = document.getElementById('thought-log');
+        if (logContainer) {
+            logContainer.innerHTML += `<div class="log-line" style="color:var(--danger)"><span>></span> SYNC_ERROR: ${error.message}</div>`;
+        }
     }
 }
 
 updateDashboard();
-setInterval(updateDashboard, 15000);
+setInterval(updateDashboard, 10000);

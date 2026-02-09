@@ -4,80 +4,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMARTZER HUD v1.0</title>
+    <title>SMARTZER | On-Chain Intelligence</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="scan-overlay"></div>
-    <div class="hud-container">
+    <div class="scan-line"></div>
 
-        <header class="hud-header">
-            <div class="brand">SMARTZER<span style="color: var(--secondary-accent);"> 🦞</span></div>
-            <div class="system-status">
-                <span style="color:red">●</span> SYSTEM ONLINE |
-                <span id="zer-score">WAITING FOR CALIBRATION...</span>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="brand-section">
+            <div class="brand-logo">🦞</div>
+            <div class="brand-name">SMARTZER</div>
+        </div>
+
+        <div class="nav-label">Platform</div>
+        <a href="#" class="nav-item active">
+            <span>📊</span> Dashboard
+        </a>
+        <a href="#" class="nav-item">
+            <span>🐋</span> Whale Tracker
+        </a>
+        <a href="#" class="nav-item">
+            <span>🛡️</span> Identity Registry
+        </a>
+
+        <div class="nav-label">System</div>
+        <a href="#" class="nav-item">
+            <span>⚙️</span> Settings
+        </a>
+        <a href="#" class="nav-item">
+            <span>📖</span> Documentation
+        </a>
+
+        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <div class="nav-label">Protocols</div>
+            <div style="font-size: 0.7rem; color: var(--text-dim); line-height: 1.6;">
+                ERC-8004 VERIFIED<br>
+                BASE_MAINNET_NODE<br>
+                CLOUD_READY
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="top-nav">
+            <div class="breadcrumb">
+                App <span>/</span> <b style="color: var(--text-primary)">Dashboard</b>
+            </div>
+            <div class="status-badge">
+                <span class="pulse">●</span>
+                <span id="zer-score">CALIBRATING KERNEL...</span>
             </div>
         </header>
 
-        <!-- LEFT: STATS -->
-        <aside class="hud-left">
-            <div class="stat-block">
-                <div class="label">Total Volatility Assets</div>
-                <div class="value highlight">$420.69</div>
+        <main class="content-container">
+            <section class="header-section">
+                <h1>Intelligence HUD</h1>
+                <p>Autonomous monitoring of ultra-high PnL wallet addresses on the Base network.</p>
+            </section>
+
+            <!-- Metrics -->
+            <div class="dash-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Volatility Assets</div>
+                    <div class="metric-value" style="color: var(--accent)">$420.69</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Targets Tracked</div>
+                    <div class="metric-value" id="trader-count">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Verified Trades</div>
+                    <div class="metric-value" id="trade-count">0</div>
+                </div>
             </div>
 
-            <div class="stat-block">
-                <div class="label">Targets Tracked</div>
-                <div class="value" id="trader-count">0</div>
-            </div>
+            <div class="layout-split">
+                <!-- Left: Trade Stream -->
+                <div class="section-card">
+                    <div class="card-header">
+                        <div class="card-title">LIVE TRADE STREAM</div>
+                        <div class="time-stamp">SYNC_100%</div>
+                    </div>
+                    <div id="replicated-trades" class="scroll-area">
+                        <div class="stream-item">
+                            <div class="item-top">
+                                <span class="type-tag buy">SYSTEM_SCAN</span>
+                                <span class="time-stamp">Awaiting volatility...</span>
+                            </div>
+                            <div class="item-content">
+                                Searching for high-conviction movements in the <span>Base</span> ecosystem.
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="stat-block">
-                <div class="label">Verified Txs</div>
-                <div class="value" id="trade-count">0</div>
-            </div>
+                <!-- Right: Alpha & Logs -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Alpha List -->
+                    <div class="section-card">
+                        <div class="card-header">
+                            <div class="card-title">ALPHA POOL</div>
+                        </div>
+                        <div id="alpha-list" class="scroll-area" style="max-height: 250px;">
+                            <div style="color: var(--text-dim); font-size: 0.8rem;">Initializing targets...</div>
+                        </div>
+                    </div>
 
-            <div class="stat-block">
-                <div class="label">Alpha Pool</div>
-                <div id="alpha-list" style="font-size: 0.8rem; color: #666; font-family: 'Inter', sans-serif;">
-                    Scanning...</div>
-            </div>
-        </aside>
-
-        <!-- CENTER: STREAM -->
-        <main class="hud-center">
-            <div class="crosshair"></div>
-            <div id="replicated-trades" class="feed-stream">
-                <!-- Javascript fills this -->
-                <div class="stream-item" style="opacity: 0.3;">
-                    <span style="color: var(--secondary-accent);">[SYSTEM]</span> Scanning for high-velocity whale
-                    movements...
+                    <!-- Terminal Logs -->
+                    <div class="section-card" style="background: #000;">
+                        <div class="card-header" style="background: #111;">
+                            <div class="card-title" style="font-size: 0.7rem;">PROCESS_LOG (PID: 8453)</div>
+                        </div>
+                        <div id="thought-log" class="scroll-area" style="max-height: 300px;">
+                            <div class="log-line"><span>></span> Initializing neural link...</div>
+                            <div class="log-line"><span>></span> Establishing Base connection...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
-
-        <!-- RIGHT: TERMINAL -->
-        <aside class="hud-right">
-            <div class="terminal-header">
-                PROCESS_LOG - ACTIVE PID: 8453
-            </div>
-            <div id="thought-log" class="terminal-logs">
-                <div class="log-entry">Booting SmartZer Kernel...</div>
-                <div class="log-entry">Loading Neural Modules...</div>
-            </div>
-        </aside>
-
-        <!-- BOTTOM: TICKER -->
-        <footer class="hud-footer">
-            <div class="scrolling-ticker">
-                BASE ETH: Wait... | SOL: Wait... | ARB: Wait...
-            </div>
-            <div style="opacity: 0.5;">
-                ERC-8004 VERIFIED
-            </div>
-        </footer>
-
     </div>
 
     <script src="app.js"></script>
