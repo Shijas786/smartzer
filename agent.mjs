@@ -28,17 +28,23 @@ async function cacheTrendingTokens(apiKey) {
     return false;
 }
 
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
 // Refresh Whale PnL from Zerion
 async function updateWhaleStats(whales, apiKey) {
     for (let whale of whales) {
         try {
             const pnl = await getWalletPnL(whale.address, apiKey);
-            if (pnl?.total?.value) {
+            if (pnl?.total?.value !== undefined) {
                 const table = whale.label ? 'anonymous_super_traders' : 'followed_traders';
-                const changeStr = whale.pnl !== pnl.total.value ? ` (Delta: $${(pnl.total.value - (whale.pnl || 0)).toLocaleString()})` : '';
+                const currentPnL = whale.pnl || 0;
+                const changeStr = currentPnL !== pnl.total.value ? ` (Delta: $${(pnl.total.value - currentPnL).toLocaleString()})` : '';
                 await supabase.from(table).update({ pnl: pnl.total.value }).eq('id', whale.id);
                 await logIntelligence(`📊 Updated Stats for ${whale.label || whale.username}: $${pnl.total.value.toLocaleString()}${changeStr}`);
+            } else if (pnl === null) {
+                console.warn(`⚠️ Throttle detected or null PnL for ${whale.label || whale.username}`);
             }
+            await sleep(2000); // Stagger calls to stay under Zerion limits
         } catch (e) {
             console.error(`Failed to update stats for ${whale.id}:`, e.message);
         }
@@ -57,12 +63,15 @@ async function getDBState() {
     const processedIds = processed?.map(p => p.notification_id) || [];
     const lastPostMetric = metrics?.find(m => m.key === 'last_status_post');
     const lastStatusPost = lastPostMetric?.value_timestamp || 0;
+    const lastCheckMetric = metrics?.find(m => m.key === 'last_check');
+    const lastCheck = lastCheckMetric?.value_timestamp || 0;
 
     return {
         followedTraders: followed || [],
         anonymousSuperTraders: anonymous || [],
         processedNotifications: processedIds,
-        lastStatusPost
+        lastStatusPost,
+        lastCheck
     };
 }
 
