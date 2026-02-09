@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMARTZER HUD v1.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="scan-overlay"></div>
+    <div class="hud-container">
+
+        <header class="hud-header">
+            <div class="brand">SMARTZER<span style="color: var(--secondary-accent);"> 🦞</span></div>
+            <div class="system-status">
+                <span style="color:red">●</span> SYSTEM ONLINE |
+                <span id="zer-score">WAITING FOR CALIBRATION...</span>
+            </div>
+        </header>
+
+        <!-- LEFT: STATS -->
+        <aside class="hud-left">
+            <div class="stat-block">
+                <div class="label">Total Volatility Assets</div>
+                <div class="value highlight">$420.69</div>
+            </div>
+
+            <div class="stat-block">
+                <div class="label">Targets Tracked</div>
+                <div class="value" id="trader-count">0</div>
+            </div>
+
+            <div class="stat-block">
+                <div class="label">Verified Txs</div>
+                <div class="value" id="trade-count">0</div>
+            </div>
+
+            <div class="stat-block">
+                <div class="label">Alpha Pool</div>
+                <div id="alpha-list" style="font-size: 0.8rem; color: #666; font-family: 'Inter', sans-serif;">
+                    Scanning...</div>
+            </div>
+        </aside>
+
+        <!-- CENTER: STREAM -->
+        <main class="hud-center">
+            <div class="crosshair"></div>
+            <div id="replicated-trades" class="feed-stream">
+                <!-- Javascript fills this -->
+                <div class="stream-item" style="opacity: 0.3;">
+                    <span style="color: var(--secondary-accent);">[SYSTEM]</span> Scanning for high-velocity whale
+                    movements...
+                </div>
+            </div>
+        </main>
+
+        <!-- RIGHT: TERMINAL -->
+        <aside class="hud-right">
+            <div class="terminal-header">
+                PROCESS_LOG - ACTIVE PID: 8453
+            </div>
+            <div id="thought-log" class="terminal-logs">
+                <div class="log-entry">Booting SmartZer Kernel...</div>
+                <div class="log-entry">Loading Neural Modules...</div>
+            </div>
+        </aside>
+
+        <!-- BOTTOM: TICKER -->
+        <footer class="hud-footer">
+            <div class="scrolling-ticker">
+                BASE ETH: Wait... | SOL: Wait... | ARB: Wait...
+            </div>
+            <div style="opacity: 0.5;">
+                ERC-8004 VERIFIED
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

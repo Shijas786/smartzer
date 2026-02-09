@@ -1,0 +1,254 @@
+{
+  "followedTraders": [
+    {
+      "username": "BaseWhale_01",
+      "address": "0x123...",
+      "pnl": 12450.5
+    }
+  ],
+  "anonymousSuperTraders": [
+    {
+      "label": "Mysterious Alpha Whale",
+      "address": "0x8EEE72ACD9A2A657A1A14F86210A7F86210A7F",
+      "pnl": 450000
+    }
+  ],
+  "replicatedTrades": [
+    {
+      "trader": "BaseWhale_01",
+      "token": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+      "txHash": "0xabc123...",
+      "timestamp": 1707444000000
+    }
+  ],
+  "agentPnL": 420.69,
+  "lastCheck": 1770600815638,
+  "processedNotifications": [
+    "0x1014440",
+    "0x1013365",
+    "0x1012990",
+    "0x1023374",
+    "0x1025660",
+    "0x1023532",
+    "0x1020975",
+    "0x1026223",
+    "0x1017606",
+    "0x1038379",
+    "0x1017893",
+    "0x1026730",
+    "0x1037473",
+    "0x1026579",
+    "0x1010164",
+    "0x1038317",
+    "0x1039702",
+    "0x1039787",
+    "0x1031258",
+    "0x1022770",
+    "0x1011395",
+    "0x1021800",
+    "0x1018959"
+  ],
+  "logs": [
+    {
+      "id": 1770600814476,
+      "text": "[7:03:34 AM] 🕵️‍♂️ Scouting Farcaster for fresh volatility signals..."
+    },
+    {
+      "id": 1770600814223,
+      "text": "[7:03:34 AM] 🐋 Scanning Whale Mysterious for new signals..."
+    },
+    {
+      "id": 1770600814223,
+      "text": "[7:03:34 AM] ✅ Replied to @base_god with Zer Score 50.0"
+    },
+    {
+      "id": 1770600813146,
+      "text": "[7:03:33 AM] ⚖️ Auditing address 0x5563... via Zerion."
+    },
+    {
+      "id": 1770600812403,
+      "text": "[7:03:32 AM] 🔔 Checking Farcaster mentions for identity resolution..."
+    },
+    {
+      "id": 1770600812403,
+      "text": "[7:03:32 AM] 🔄 Initializing high-velocity intelligence scan..."
+    },
+    {
+      "id": 1770600692402,
+      "text": "[7:01:32 AM] 💤 Intelligence cycle complete. Powering down until next block pulse."
+    },
+    {
+      "id": 1770600690851,
+      "text": "[7:01:30 AM] 🕵️‍♂️ Scouting Farcaster for fresh volatility signals..."
+    },
+    {
+      "id": 1770600690566,
+      "text": "[7:01:30 AM] 🐋 Scanning Whale Mysterious for new signals..."
+    },
+    {
+      "id": 1770600690566,
+      "text": "[7:01:30 AM] ✅ Replied to @solana_whale with Zer Score 50.0"
+    },
+    {
+      "id": 1770600689305,
+      "text": "[7:01:29 AM] ⚖️ Auditing address 83ast.... via Zerion."
+    },
+    {
+      "id": 1770600688506,
+      "text": "[7:01:28 AM] 🔔 Checking Farcaster mentions for identity resolution..."
+    },
+    {
+      "id": 1770600688506,
+      "text": "[7:01:28 AM] 🔄 Initializing high-velocity intelligence scan..."
+    },
+    {
+      "id": 1770600568503,
+      "text": "[6:59:28 AM] 💤 Intelligence cycle complete. Powering down until next block pulse."
+    },
+    {
+      "id": 1770600567025,
+      "text": "[6:59:27 AM] 🕵️‍♂️ Scouting Farcaster for fresh volatility signals..."
+    },
+    {
+      "id": 1770600566766,
+      "text": "[6:59:26 AM] 🐋 Scanning Whale Mysterious for new signals..."
+    },
+    {
+      "id": 1770600566766,
+      "text": "[6:59:26 AM] ✅ Replied to @base_god with Zer Score 50.0"
+    },
+    {
+      "id": 1770600565697,
+      "text": "[6:59:25 AM] ⚖️ Auditing address 0x5563... via Zerion."
+    },
+    {
+      "id": 1770600564971,
+      "text": "[6:59:24 AM] 🔔 Checking Farcaster mentions for identity resolution..."
+    },
+    {
+      "id": 1770600564970,
+      "text": "[6:59:24 AM] 🔄 Initializing high-velocity intelligence scan..."
+    },
+    {
+      "id": 1770600444968,
+      "text": "[6:57:24 AM] 💤 Intelligence cycle complete. Powering down until next block pulse."
+    },
+    {
+      "id": 1770600443376,
+      "text": "[6:57:23 AM] 🕵️‍♂️ Scouting Farcaster for fresh volatility signals..."
+    },
+    {
+      "id": 1770600443109,
+      "text": "[6:57:23 AM] 🐋 Scanning Whale Mysterious for new signals..."
+    },
+    {
+      "id": 1770600443109,
+      "text": "[6:57:23 AM] ✅ Replied to @solana_whale with Zer Score 50.0"
+    },
+    {
+      "id": 1770600442079,
+      "text": "[6:57:22 AM] ⚖️ Auditing address 83ast.... via Zerion."
+    },
+    {
+      "id": 1770600441295,
+      "text": "[6:57:21 AM] 🔔 Checking Farcaster mentions for identity resolution..."
+    },
+    {
+      "id": 1770600441295,
+      "text": "[6:57:21 AM] 🔄 Initializing high-velocity intelligence scan..."
+    },
+    {
+      "id": 1770600321293,
+      "text": "[6:55:21 AM] 💤 Intelligence cycle complete. Powering down until next block pulse."
+    },
+    {
+      "id": 1770600319665,
+      "text": "[6:55:19 AM] 🕵️‍♂️ Scouting Farcaster for fresh volatility signals..."
+    },
+    {
+      "id": 1770600319361,
+      "text": "[6:55:19 AM] 🐋 Scanning Whale Mysterious for new signals..."
+    },
+    {
+      "id": 1770600319361,
+      "text": "[6:55:19 AM] ✅ Replied to @nft_degen with Zer Score 50.0"
+    },
+    {
+      "id": 1770600317742,
+      "text": "[6:55:17 AM] ⚖️ Auditing address 0xd8dA... via Zerion."
+    },
+    {
+      "id": 1770600317047,
+      "text": "[6:55:17 AM] 🔔 Checking Farcaster mentions for identity resolution..."
+    },
+    {
+      "id": 1770600317047,
+      "text": "[6:55:17 AM] 🔄 Initializing high-velocity intelligence scan..."
+    },
+    {
+      "id": 1770600197045,
+      "text": "[6:53:17 AM] 💤 Intelligence cycle complete. Powering down until next block pulse."
+    },
+    {
+      "id": 1770600195845,
+      "text": "[6:53:15 AM] 🕵️‍♂️ Scouting Farcaster for fresh volatility signals..."
+    },
+    {
+      "id": 1770600195558,
+      "text": "[6:53:15 AM] 🐋 Scanning Whale Mysterious for new signals..."
+    },
+    {
+      "id": 1770600195558,
+      "text": "[6:53:15 AM] ✅ Replied to @nft_degen with Zer Score 50.0"
+    },
+    {
+      "id": 1770600192786,
+      "text": "[6:53:12 AM] ⚖️ Auditing address 0xd8dA... via Zerion."
+    },
+    {
+      "id": 1770600192049,
+      "text": "[6:53:12 AM] 🔔 Checking Farcaster mentions for identity resolution..."
+    },
+    {
+      "id": 1770600192048,
+      "text": "[6:53:12 AM] 🔄 Initializing high-velocity intelligence scan..."
+    },
+    {
+      "id": 1770600072046,
+      "text": "[6:51:12 AM] 💤 Intelligence cycle complete. Powering down until next block pulse."
+    },
+    {
+      "id": 1770600070776,
+      "text": "[6:51:10 AM] 🕵️‍♂️ Scouting Farcaster for fresh volatility signals..."
+    },
+    {
+      "id": 1770600070521,
+      "text": "[6:51:10 AM] 🐋 Scanning Whale Mysterious for new signals..."
+    },
+    {
+      "id": 1770600070521,
+      "text": "[6:51:10 AM] ✅ Replied to @nft_degen with Zer Score 50.0"
+    },
+    {
+      "id": 1770600069295,
+      "text": "[6:51:09 AM] ⚖️ Auditing address 0xd8dA... via Zerion."
+    },
+    {
+      "id": 1770600068475,
+      "text": "[6:51:08 AM] 🔔 Checking Farcaster mentions for identity resolution..."
+    },
+    {
+      "id": 1770600068474,
+      "text": "[6:51:08 AM] 🔄 Initializing high-velocity intelligence scan..."
+    },
+    {
+      "id": 1770599948472,
+      "text": "[6:49:08 AM] 💤 Intelligence cycle complete. Powering down until next block pulse."
+    },
+    {
+      "id": 1770599947294,
+      "text": "[6:49:07 AM] 🕵️‍♂️ Scouting Farcaster for fresh volatility signals..."
+    }
+  ],
+  "lastStatusPost": 1770598095509
+}
