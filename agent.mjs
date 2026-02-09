@@ -90,6 +90,7 @@ async function main() {
             await logIntelligence("🔄 Initializing high-velocity intelligence scan...");
             await cacheTrendingTokens(config.zerionKey);
             await updateWhaleStats(state.anonymousSuperTraders, config.zerionKey);
+            await updateWhaleStats(state.followedTraders, config.zerionKey); // 👤 Refresh Social Trader PnL
 
             // --- PART 1: Mentions ---
             if (config.fid && config.neynarKey) {
@@ -133,13 +134,13 @@ async function main() {
             }
 
             // --- PART 3: Alpha Discovery ---
-            const keywords = ["Base profit", "Whale move"];
+            const keywords = ["Base profit", "Whale move", "top trader base", "profitable wallet base", "insider base", "alpha base"];
             const castResults = await searchCasts(config.neynarKey, keywords[Math.floor(Math.random() * keywords.length)]);
             for (const cast of castResults) {
                 const { data: existing } = await supabase.from('followed_traders').select('id').eq('address', cast.address);
                 if ((!existing || existing.length === 0) && cast.address) {
                     const pnl = await getWalletPnL(cast.address, config.zerionKey);
-                    if (pnl?.total?.value > 10000) {
+                    if (pnl?.total?.value > 5000) { // 🌟 Optimized: Lowered to $5k to catch rising stars
                         await logIntelligence(`🌟 Discovery: @${cast.author} (+$${pnl.total.value.toLocaleString()})`);
                         await supabase.from('followed_traders').insert({ username: cast.author, address: cast.address, pnl: pnl.total.value });
                     }
