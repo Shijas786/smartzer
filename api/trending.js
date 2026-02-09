@@ -1,27 +1,22 @@
-import fetch from 'node-fetch';
+import { createClient } from '@supabase/supabase-js';
 
-async function fetchZerion(path, params = {}) {
-    const url = new URL(`https://api.zerion.io/v1${path}`);
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-    const auth = Buffer.from(`${process.env.ZERION_API_KEY}:`).toString('base64');
-    const response = await fetch(url.toString(), {
-        headers: {
-            'Authorization': `Basic ${auth}`,
-            'accept': 'application/json'
-        }
-    });
-    return response.json();
-}
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 export default async function handler(req, res) {
-    const { chainId } = req.query;
     try {
-        const data = await fetchZerion('/fungibles/', {
-            'filter[implementation_chain_id]': chainId || 'base',
-            'sort': '-market_data.price.percent_change_1d',
-            'page[size]': 6
-        });
-        res.status(200).json(data);
+        // --- SURVIVAL MODE: Read from Cache instead of Zerion API ---
+        const { data, error } = await supabase
+            .from('agent_metrics')
+            .select('value_text')
+            .eq('key', 'cached_trending_base')
+            .single();
+
+        if (error || !data?.value_text) {
+            return res.status(200).json({ data: [], note: "Cache Empty. Awaiting Agent Sync." });
+        }
+
+        const cachedData = JSON.parse(data.value_text);
+        res.status(200).json(cachedData);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

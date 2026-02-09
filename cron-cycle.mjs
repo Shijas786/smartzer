@@ -14,8 +14,13 @@ async function logIntelligence(message) {
     await supabase.from('logs').insert({ id: Date.now(), text: message });
 }
 
-async function updateMetric(key, value) {
-    await supabase.from('agent_metrics').upsert({ key, value_numeric: value, value_timestamp: Date.now() });
+async function updateMetric(key, value, numeric = true) {
+    if (numeric) {
+        await supabase.from('agent_metrics').upsert({ key, value_numeric: value, value_timestamp: Date.now() });
+    } else {
+        // Use value_text as a JSON storage
+        await supabase.from('agent_metrics').upsert({ key, value_text: value, value_timestamp: Date.now() });
+    }
 }
 
 function calculateEliteZerScore(pnl) {
@@ -25,8 +30,32 @@ function calculateEliteZerScore(pnl) {
     return Math.min(100, Math.max(0, score));
 }
 
+// Helper to fetch and cache trending tokens to save Zerion API credits
+async function cacheTrendingTokens(apiKey) {
+    try {
+        const url = new URL(`https://api.zerion.io/v1/fungibles/`);
+        url.searchParams.append('filter[implementation_chain_id]', 'base');
+        url.searchParams.append('sort', '-market_data.price.percent_change_1d');
+        url.searchParams.append('page[size]', '6');
+
+        const auth = Buffer.from(`${apiKey}:`).toString('base64');
+        const response = await fetch(url.toString(), {
+            headers: { 'Authorization': `Basic ${auth}`, 'accept': 'application/json' }
+        });
+
+        const data = await response.json();
+        if (data.data) {
+            await updateMetric('cached_trending_base', JSON.stringify(data), false);
+            return true;
+        }
+    } catch (e) {
+        console.error("Cache Error:", e);
+    }
+    return false;
+}
+
 async function runCycle() {
-    console.log("🦞 SMARTZER CRON CYCLE STARTING...");
+    console.log("🦞 SMARTZER CRON CYCLE STARTING (SURVIVAL MODE)...");
 
     const config = {
         zerionKey: process.env.ZERION_API_KEY,
@@ -45,9 +74,12 @@ async function runCycle() {
         const lastPostMetric = metrics?.find(m => m.key === 'last_status_post');
         const lastStatusPost = lastPostMetric?.value_timestamp || 0;
 
-        await logIntelligence("🔄 GitHub Action: Initializing cloud intelligence scan...");
+        await logIntelligence("🔄 Survival Agent: Checking mentions and caching market data...");
 
-        // --- PART 1: Reply to Mentions ---
+        // --- PART 1: Cache Market Data (Prevents Dashboard from using API credits) ---
+        await cacheTrendingTokens(config.zerionKey);
+
+        // --- PART 2: Reply to Mentions ---
         if (config.fid && config.neynarKey) {
             const notifications = await fetchNotifications(config.neynarKey, config.fid);
             for (const n of notifications) {
@@ -58,7 +90,7 @@ async function runCycle() {
                         const zerScore = calculateEliteZerScore(pnlVal);
                         const status = pnlVal > 1000 ? "🔱 ELITE WHALE" : (pnlVal > 0 ? "✅ PROFITABLE" : "⚠️ NEEDS GROWTH");
 
-                        const reply = `@${n.author} Identity Resolved via SmartZer 🌍\n\n📊 Zer Score: ${zerScore.toFixed(1)}/100\n💎 PnL: $${pnlVal.toLocaleString()}\n⚖️ Ranking: ${status}`;
+                        const reply = `@${n.author} Identity Resolved 🌍\n\n📊 Zer Score: ${zerScore.toFixed(1)}/100\n💎 PnL: $${pnlVal.toLocaleString()}\n⚖️ Ranking: ${status}`;
                         if (config.signerUuid) await postToFarcaster(config.neynarKey, config.signerUuid, reply, n.hash);
                         await logIntelligence(`✅ Replied to @${n.author}`);
                     }
@@ -67,7 +99,7 @@ async function runCycle() {
             }
         }
 
-        // --- PART 2: On-chain Heartbeat ---
+        // --- PART 3: On-chain Heartbeat ---
         if (config.privateKey) {
             try {
                 const account = privateKeyToAccount(config.privateKey);
@@ -76,13 +108,13 @@ async function runCycle() {
                     to: account.address,
                     value: parseEther('0.000001')
                 });
-                await logIntelligence(`✅ Heartbeat Confirmed: ${hash.slice(0, 10)}...`);
+                await logIntelligence(`✅ Heartbeat Signal: ${hash.slice(0, 10)}...`);
             } catch (txErr) {
                 console.error("Heartbeat failed:", txErr.message);
             }
         }
 
-        // --- PART 3: Profile Cast (every 90 min) ---
+        // --- PART 4: Profile Cast (every 90 min) ---
         if (Date.now() - lastStatusPost > 1000 * 60 * 90) {
             const { data: topTraders } = await supabase.from('followed_traders').select('*').order('pnl', { ascending: false }).limit(2);
             if (topTraders?.length > 0 && config.signerUuid) {
@@ -93,7 +125,7 @@ async function runCycle() {
         }
 
         await updateMetric('last_check', Date.now());
-        console.log("✅ CRON CYCLE COMPLETE.");
+        console.log("✅ SURVIVAL CYCLE COMPLETE.");
         process.exit(0);
     } catch (e) {
         console.error("Cron Error:", e);

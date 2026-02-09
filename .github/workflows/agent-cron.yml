@@ -2,7 +2,7 @@ name: SmartZer Always-Alive Agent
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # Run every 5 minutes
+    - cron: '*/10 * * * *' # Run every 10 minutes (144/day)
   workflow_dispatch: # Allow manual trigger
 
 jobs:
