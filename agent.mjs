@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { searchCasts, postToFarcaster, fetchNotifications } from './lib/farcaster.mjs';
+import { searchCasts, postToFarcaster, fetchNotifications, resolveAddressToUsername } from './lib/farcaster.mjs';
 import { getWalletPnL, getWhaleSignals } from './lib/zerion.mjs';
 import { executeAutomatedTrade } from './lib/trade.mjs';
 import { supabase, logIntelligence, updateMetric } from './lib/supabase.mjs';
@@ -113,10 +113,21 @@ async function main() {
             for (let whale of state.anonymousSuperTraders) {
                 const signals = await getWhaleSignals(whale.address, config.zerionKey);
 
+                // 🕵️ Attempt Identity Resolution (Username recovery)
+                let identifiedLabel = whale.label;
+                if (!whale.label?.startsWith('@')) {
+                    const resolved = await resolveAddressToUsername(config.neynarKey, whale.address);
+                    if (resolved) {
+                        identifiedLabel = `@${resolved}`;
+                        await supabase.from('anonymous_super_traders').update({ label: identifiedLabel }).eq('id', whale.id);
+                        await logIntelligence(`🕵️ Identity Match: ${whale.label} is confirmed as ${identifiedLabel}`);
+                    }
+                }
+
                 // Track ALL new activity for the Feed
                 const newActivity = signals.filter(s => (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
                 for (const activity of newActivity) {
-                    await logIntelligence(`[WHALE_FEED] ${whale.label || whale.username} (${whale.address}) ${activity.side} $${activity.symbol} on ${activity.chainId}`);
+                    await logIntelligence(`[WHALE_FEED] ${identifiedLabel} (${whale.address}) ${activity.side} $${activity.symbol} on ${activity.chainId}`);
                 }
 
                 const newSignal = signals.find(s => (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
