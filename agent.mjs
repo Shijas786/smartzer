@@ -131,11 +131,12 @@ async function main() {
                     await logIntelligence(`[WHALE_FEED] ${identifiedLabel} (${whale.address}) ${activity.side} $${activity.symbol} on ${activity.chainId}`);
                 }
 
-                const newSignal = signals.find(s => (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
+                // 🎯 REPLICATED SIGNALS (Only true trades)
+                const newSignal = signals.find(s => s.isTrade && (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
                 if (newSignal) {
                     await logIntelligence(`🎯 SIGNAL: ${newSignal.side} $${newSignal.symbol}`);
                     let txHash = "0x_sim_" + Math.random().toString(16).slice(2);
-                    if (!SIMULATION_MODE) {
+                    if (!SIMULATION_MODE && newSignal.tokenAddress) {
                         const result = await executeAutomatedTrade(newSignal.side, newSignal.tokenAddress, newSignal.chainId, config.privateKey, config.solanaPrivateKey);
                         if (result.success) txHash = result.hash;
                     }
@@ -147,7 +148,11 @@ async function main() {
                         timestamp: Date.now(),
                         chain: newSignal.chainId
                     });
-                    await supabase.from('anonymous_super_traders').update({ last_seen_timestamp: newSignal.timestamp }).eq('id', whale.id);
+                }
+
+                // Update last seen to the absolute latest transaction regardless of type
+                if (signals.length > 0) {
+                    await supabase.from('anonymous_super_traders').update({ last_seen_timestamp: signals[0].timestamp }).eq('id', whale.id);
                 }
             }
 
