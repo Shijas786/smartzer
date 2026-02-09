@@ -52,7 +52,7 @@ async function main() {
         signerUuid: process.env.NEYNAR_SIGNER_UUID
     };
 
-    const SCAN_INTERVAL = 1000 * 60 * 5; // 🛡️ SURVIVAL MODE: 5 minutes (300 requests/day target)
+    const SCAN_INTERVAL = 1000 * 60; // ⚡️ OPTIMIZED: 1 minute (safely under 2,000 req/day)
 
     while (true) {
         try {

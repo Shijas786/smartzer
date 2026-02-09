@@ -1,14 +1,30 @@
-import { NeynarAPIClient } from "@neynar/nodejs-sdk";
 import 'dotenv/config';
 
-async function test() {
-    const client = new NeynarAPIClient(process.env.NEYNAR_API_KEY);
-    try {
-        const res = await client.fetchMentionAndReplyNotifications(Number(process.env.AGENT_FID), { limit: 1 });
-        console.log("Notifications success!", res.notifications.length);
-    } catch (e) {
-        console.error("Notifications failed:", e.response?.status, e.response?.data);
+async function testEndpoints() {
+    const apiKey = process.env.NEYNAR_API_KEY;
+    const fid = process.env.AGENT_FID;
+
+    const endpoints = [
+        `/notifications?fid=${fid}`,
+        `/notifications/type?fid=${fid}&type=mentions`,
+        `/mentions?fid=${fid}`
+    ];
+
+    for (const ep of endpoints) {
+        const url = `https://api.neynar.com/v2/farcaster${ep}`;
+        console.log(`📡 Trying: ${url}`);
+        const res = await fetch(url, {
+            headers: { 'api_key': apiKey }
+        });
+        console.log(`📊 Status: ${res.status}`);
+        if (res.ok) {
+            console.log(`✅ Success for ${ep}`);
+            break;
+        } else {
+            const body = await res.text();
+            console.log(`❌ Fail: ${body}`);
+        }
     }
 }
 
-test();
+testEndpoints();
