@@ -76,11 +76,17 @@ async function updateDashboard() {
             const whaleFeedList = document.getElementById('whale-feed-list');
             if (whaleFeedList && whaleFeedLogs.length > 0) {
                 whaleFeedList.innerHTML = whaleFeedLogs.map(l => {
-                    const parts = l.text.replace('[WHALE_FEED] ', '').split(' ');
-                    const name = parts[0] || 'Unknown';
-                    const side = parts[1] || 'MOVE';
-                    const token = parts[2] || '';
-                    const chain = parts[4] || 'Base';
+                    // Robust parsing for: Label (Address) Side $Symbol on Chain
+                    const text = l.text.replace('[WHALE_FEED] ', '');
+                    const addressMatch = text.match(/\((0x[a-fA-F0-9]+)\)/);
+                    const address = addressMatch ? addressMatch[1] : 'Unknown';
+                    const name = text.split(' (')[0] || 'Unknown';
+
+                    const metaParts = text.split(') ')[1] || '';
+                    const parts = metaParts.split(' ');
+                    const side = parts[0] || 'MOVE';
+                    const token = parts[1] || '';
+                    const chain = parts[3] || 'Base';
 
                     return `
                     <div class="stream-item">
@@ -89,7 +95,7 @@ async function updateDashboard() {
                             <span class="time-stamp">${new Date(l.id).toLocaleTimeString()}</span>
                         </div>
                         <div class="item-content">
-                            <b>${name}</b> swapped <span>${token}</span> on <span>${chain}</span>
+                            <b>${name}</b> <code style="font-size:0.65rem; opacity:0.6;">${address.slice(0, 6)}...${address.slice(-4)}</code> moved <span>${token}</span> on <span>${chain}</span>
                         </div>
                     </div>
                     `;

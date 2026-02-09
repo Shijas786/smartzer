@@ -116,7 +116,7 @@ async function main() {
                 // Track ALL new activity for the Feed
                 const newActivity = signals.filter(s => (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
                 for (const activity of newActivity) {
-                    await logIntelligence(`[WHALE_FEED] ${whale.label} ${activity.side} $${activity.symbol} on ${activity.chainId}`);
+                    await logIntelligence(`[WHALE_FEED] ${whale.label || whale.username} (${whale.address}) ${activity.side} $${activity.symbol} on ${activity.chainId}`);
                 }
 
                 const newSignal = signals.find(s => (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
