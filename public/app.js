@@ -23,8 +23,8 @@ async function updateDashboard() {
         }
 
         if (state.followedTraders && state.followedTraders.length > 0) {
-            alphaHTML += `<div style="font-size: 0.65rem; color: var(--secondary-accent); margin: 1rem 0 0.75rem 0; font-weight: 700;">👤 GENERAL TOP TRADERS</div>`;
-            alphaHTML += state.followedTraders.slice(0, 10).map(t => `
+            alphaHTML += `<div style="font-size: 0.65rem; color: var(--secondary-accent); margin: 1rem 0 0.75rem 0; font-weight: 700;">👤 SOCIAL ALPHA</div>`;
+            alphaHTML += state.followedTraders.slice(0, 5).map(t => `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem;">
                     <span style="color: var(--text-primary)">@${t.username}</span>
                     <span style="color: var(--success); font-weight: 600;">+$${(t.pnl || 0).toLocaleString()}</span>

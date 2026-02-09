@@ -156,14 +156,13 @@ async function main() {
                 }
             }
 
-            // --- PART 3: Global Alpha Discovery (High-Precision ROI Scan) ---
+            // --- PART 3: Zerion-Specific Alpha Discovery ---
             const keywords = [
-                "ROI leaderboard Base", "Top 100 traders Base", "most profitable wallets",
-                "verified PnL Base", "smart money dashboard", "insider address Base",
-                "top dApp users Base", "whale wallet list", "super trader Base",
-                "Clanker top earners", "Virtuals protocol whale", "DEX leaderboard profit"
+                "Zerion top trader", "Zerion feed alpha", "Zerion wallet profit",
+                "verified on Zerion", "shared from Zerion", "Zerion hot feed",
+                "copy trading Zerion", "top performing wallet Zerion"
             ];
-            const selectedKeywords = keywords.sort(() => 0.5 - Math.random()).slice(0, 4);
+            const selectedKeywords = keywords.sort(() => 0.5 - Math.random()).slice(0, 3);
 
             for (const keyword of selectedKeywords) {
                 const castResults = await searchCasts(config.neynarKey, keyword);
@@ -172,9 +171,8 @@ async function main() {
                     if ((!existing || existing.length === 0) && cast.address) {
                         const pnlData = await getWalletPnL(cast.address, config.zerionKey);
                         const pnlVal = pnlData?.total?.value || 0;
-                        // 💎 QUALITY THRESHOLD: $10k+ for "General Top Traders"
-                        if (pnlVal > 10000) {
-                            await logIntelligence(`🏆 DISCOVERY: General Top Trader @${cast.author} unmasked via [${keyword}] with $${pnlVal.toLocaleString()} PnL.`);
+                        if (pnlVal > 5000) {
+                            await logIntelligence(`🦞 ZERION FEED MATCH: @${cast.author} has confirmed $${pnlVal.toLocaleString()} ROI. Tracking...`);
                             await supabase.from('followed_traders').insert({ username: cast.author, address: cast.address, pnl: pnlVal });
                         }
                     }
