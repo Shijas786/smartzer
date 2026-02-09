@@ -35,8 +35,9 @@ async function updateWhaleStats(whales, apiKey) {
             const pnl = await getWalletPnL(whale.address, apiKey);
             if (pnl?.total?.value) {
                 const table = whale.label ? 'anonymous_super_traders' : 'followed_traders';
+                const changeStr = whale.pnl !== pnl.total.value ? ` (Delta: $${(pnl.total.value - (whale.pnl || 0)).toLocaleString()})` : '';
                 await supabase.from(table).update({ pnl: pnl.total.value }).eq('id', whale.id);
-                console.log(`📊 Updated Stats for ${whale.label || whale.username}: $${pnl.total.value.toLocaleString()}`);
+                await logIntelligence(`📊 Updated Stats for ${whale.label || whale.username}: $${pnl.total.value.toLocaleString()}${changeStr}`);
             }
         } catch (e) {
             console.error(`Failed to update stats for ${whale.id}:`, e.message);
@@ -150,16 +151,21 @@ async function main() {
                 }
             }
 
-            // --- PART 3: Alpha Discovery ---
-            const keywords = ["Base profit", "Whale move", "top trader base", "profitable wallet base", "insider base", "alpha base"];
-            const castResults = await searchCasts(config.neynarKey, keywords[Math.floor(Math.random() * keywords.length)]);
-            for (const cast of castResults) {
-                const { data: existing } = await supabase.from('followed_traders').select('id').eq('address', cast.address);
-                if ((!existing || existing.length === 0) && cast.address) {
-                    const pnl = await getWalletPnL(cast.address, config.zerionKey);
-                    if (pnl?.total?.value > 5000) { // 🌟 Optimized: Lowered to $5k to catch rising stars
-                        await logIntelligence(`🌟 Discovery: @${cast.author} (+$${pnl.total.value.toLocaleString()})`);
-                        await supabase.from('followed_traders').insert({ username: cast.author, address: cast.address, pnl: pnl.total.value });
+            // --- PART 3: Alpha Discovery (Staggered Keyword Scan) ---
+            const keywords = ["Base profit", "Whale move", "top trader base", "profitable wallet base", "insider base", "alpha base", "clanker profit", "virtual protocol alpha", "insider wallet base"];
+            const selectedKeywords = keywords.sort(() => 0.5 - Math.random()).slice(0, 2);
+
+            for (const keyword of selectedKeywords) {
+                const castResults = await searchCasts(config.neynarKey, keyword);
+                for (const cast of castResults) {
+                    const { data: existing } = await supabase.from('followed_traders').select('id').eq('address', cast.address);
+                    if ((!existing || existing.length === 0) && cast.address) {
+                        const pnlData = await getWalletPnL(cast.address, config.zerionKey);
+                        const pnlVal = pnlData?.total?.value || 0;
+                        if (pnlVal > 5000) {
+                            await logIntelligence(`🌟 Discovery: @${cast.author} found via [${keyword}] with confirmed $${pnlVal.toLocaleString()} PnL.`);
+                            await supabase.from('followed_traders').insert({ username: cast.author, address: cast.address, pnl: pnlVal });
+                        }
                     }
                 }
             }
