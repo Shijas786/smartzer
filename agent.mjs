@@ -156,9 +156,14 @@ async function main() {
                 }
             }
 
-            // --- PART 3: Alpha Discovery (Staggered Keyword Scan) ---
-            const keywords = ["Base profit", "Whale move", "top trader base", "profitable wallet base", "insider base", "alpha base", "clanker profit", "virtual protocol alpha", "insider wallet base"];
-            const selectedKeywords = keywords.sort(() => 0.5 - Math.random()).slice(0, 2);
+            // --- PART 3: Global Alpha Discovery (High-Precision ROI Scan) ---
+            const keywords = [
+                "ROI leaderboard Base", "Top 100 traders Base", "most profitable wallets",
+                "verified PnL Base", "smart money dashboard", "insider address Base",
+                "top dApp users Base", "whale wallet list", "super trader Base",
+                "Clanker top earners", "Virtuals protocol whale", "DEX leaderboard profit"
+            ];
+            const selectedKeywords = keywords.sort(() => 0.5 - Math.random()).slice(0, 4);
 
             for (const keyword of selectedKeywords) {
                 const castResults = await searchCasts(config.neynarKey, keyword);
@@ -167,8 +172,9 @@ async function main() {
                     if ((!existing || existing.length === 0) && cast.address) {
                         const pnlData = await getWalletPnL(cast.address, config.zerionKey);
                         const pnlVal = pnlData?.total?.value || 0;
-                        if (pnlVal > 5000) {
-                            await logIntelligence(`🌟 Discovery: @${cast.author} found via [${keyword}] with confirmed $${pnlVal.toLocaleString()} PnL.`);
+                        // 💎 QUALITY THRESHOLD: $10k+ for "General Top Traders"
+                        if (pnlVal > 10000) {
+                            await logIntelligence(`🏆 DISCOVERY: General Top Trader @${cast.author} unmasked via [${keyword}] with $${pnlVal.toLocaleString()} PnL.`);
                             await supabase.from('followed_traders').insert({ username: cast.author, address: cast.address, pnl: pnlVal });
                         }
                     }
