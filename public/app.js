@@ -59,10 +59,30 @@ async function updateDashboard() {
 
         // 4. Intelligence Logs (Terminal Style)
         const logContainer = document.getElementById('thought-log');
+        const momentumFeed = document.getElementById('replicated-trades');
+
         if (state.logs && state.logs.length > 0) {
-            logContainer.innerHTML = state.logs.map(log => `
+            // Separate momentum logs from general thoughts
+            const heatLogs = state.logs.filter(l => l.text.includes('🔥 Market Heat') || l.text.includes('🎯 SIGNAL'));
+            const thoughtLogs = state.logs.filter(l => !l.text.includes('🔥 Market Heat'));
+
+            logContainer.innerHTML = thoughtLogs.map(log => `
                 <div class="log-line"><span>></span> ${log.text}</div>
             `).join('');
+
+            // If No Copy Trades, show Momentum Heat in the main stream
+            if (!state.replicatedTrades || state.replicatedTrades.length === 0) {
+                momentumFeed.innerHTML = heatLogs.map(l => `
+                    <div class="stream-item" style="border-left: 2px solid var(--accent)">
+                        <div class="item-top">
+                            <span class="type-tag" style="background: var(--accent); color: #fff;">MOMENTUM DETECTED</span>
+                            <span class="time-stamp">${new Date(l.id).toLocaleTimeString()}</span>
+                        </div>
+                        <div class="item-content">${l.text.replace('🔥 Market Heat: ', '')}</div>
+                    </div>
+                `).join('') || '<div style="opacity:0.4; font-size: 0.85rem; padding: 1rem 0;">Awaiting first on-chain signal...</div>';
+            }
+
             logContainer.scrollTop = 0;
         }
 
