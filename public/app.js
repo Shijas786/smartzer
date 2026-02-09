@@ -62,25 +62,56 @@ async function updateDashboard() {
         const momentumFeed = document.getElementById('replicated-trades');
 
         if (state.logs && state.logs.length > 0) {
-            // Separate momentum logs from general thoughts
+            // Separate logs for different views
             const heatLogs = state.logs.filter(l => l.text.includes('🔥 Market Heat') || l.text.includes('🎯 SIGNAL'));
-            const thoughtLogs = state.logs.filter(l => !l.text.includes('🔥 Market Heat'));
+            const thoughtLogs = state.logs.filter(l => !l.text.includes('🔥 Market Heat') && !l.text.includes('[WHALE_FEED]'));
+            const whaleFeedLogs = state.logs.filter(l => l.text.includes('[WHALE_FEED]'));
 
+            // Update Intelligence Logs (Thought Stream)
             logContainer.innerHTML = thoughtLogs.map(log => `
                 <div class="log-line"><span>></span> ${log.text}</div>
             `).join('');
 
+            // Update Whale Tracker Tab
+            const whaleFeedList = document.getElementById('whale-feed-list');
+            if (whaleFeedList && whaleFeedLogs.length > 0) {
+                whaleFeedList.innerHTML = whaleFeedLogs.map(l => {
+                    const parts = l.text.replace('[WHALE_FEED] ', '').split(' ');
+                    const name = parts[0] || 'Unknown';
+                    const side = parts[1] || 'MOVE';
+                    const token = parts[2] || '';
+                    const chain = parts[4] || 'Base';
+
+                    return `
+                    <div class="stream-item">
+                        <div class="item-top">
+                            <span class="type-tag ${side === 'SELL' ? 'sell' : 'buy'}">${side} DETECTED</span>
+                            <span class="time-stamp">${new Date(l.id).toLocaleTimeString()}</span>
+                        </div>
+                        <div class="item-content">
+                            <b>${name}</b> swapped <span>${token}</span> on <span>${chain}</span>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            } else if (whaleFeedList && whaleFeedLogs.length === 0) {
+                whaleFeedList.innerHTML = '<div style="opacity:0.4; font-size: 0.85rem; padding: 1rem 0; text-align: center;">Waiting for high-net-worth activity...</div>';
+            }
+
             // If No Copy Trades, show Momentum Heat in the main stream
             if (!state.replicatedTrades || state.replicatedTrades.length === 0) {
-                momentumFeed.innerHTML = heatLogs.map(l => `
+                momentumFeed.innerHTML = heatLogs.map(l => {
+                    const timestamp = isNaN(Number(l.id)) ? '' : new Date(Number(l.id)).toLocaleTimeString();
+                    return `
                     <div class="stream-item" style="border-left: 2px solid var(--accent)">
                         <div class="item-top">
                             <span class="type-tag" style="background: var(--accent); color: #fff;">MOMENTUM DETECTED</span>
-                            <span class="time-stamp">${new Date(l.id).toLocaleTimeString()}</span>
+                            <span class="time-stamp">${timestamp}</span>
                         </div>
                         <div class="item-content">${l.text.replace('🔥 Market Heat: ', '')}</div>
                     </div>
-                `).join('') || '<div style="opacity:0.4; font-size: 0.85rem; padding: 1rem 0;">Awaiting first on-chain signal...</div>';
+                    `;
+                }).join('') || '<div style="opacity:0.4; font-size: 0.85rem; padding: 1rem 0;">Awaiting first on-chain signal...</div>';
             }
 
             logContainer.scrollTop = 0;

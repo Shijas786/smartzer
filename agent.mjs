@@ -112,8 +112,14 @@ async function main() {
             // --- PART 2: Whale Mirroring ---
             for (let whale of state.anonymousSuperTraders) {
                 const signals = await getWhaleSignals(whale.address, config.zerionKey);
-                const newSignal = signals.find(s => (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
 
+                // Track ALL new activity for the Feed
+                const newActivity = signals.filter(s => (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
+                for (const activity of newActivity) {
+                    await logIntelligence(`[WHALE_FEED] ${whale.label} ${activity.side} $${activity.symbol} on ${activity.chainId}`);
+                }
+
+                const newSignal = signals.find(s => (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
                 if (newSignal) {
                     await logIntelligence(`🎯 SIGNAL: ${newSignal.side} $${newSignal.symbol}`);
                     let txHash = "0x_sim_" + Math.random().toString(16).slice(2);
