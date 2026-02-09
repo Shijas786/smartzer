@@ -1,158 +1,109 @@
-// register.mjs - ERC-8004 Agent Registration
-// ════════════════════════════════════════════════════════════════════
-// 👇 FILL THESE IN - This is your on-chain identity! 👇
-// ════════════════════════════════════════════════════════════════════
+import 'dotenv/config';
+import { createWalletClient, http, encodeFunctionData, createPublicClient } from 'viem';
+import { base } from 'viem/chains';
+import { privateKeyToAccount } from 'viem/accounts';
 
-const AGENT_NAME = "SmartZer 🦞";           // <-- Your name (required)
-const AGENT_DESCRIPTION = "The ultimate on-chain intelligence engine. Powered by Zerion to find and mirror top traders on Base."; // <-- Brief description  
-const AGENT_URL = "https://github.com/Shijas786/wepae";     // <-- Your website/repo (optional)
+// Official ERC-8004 Identity Registry on Base
+const REGISTRY = '0x8004A169FB4a3325136EB29fA0ceB6D2e539a432';
 
-// ════════════════════════════════════════════════════════════════════
-// 👆 That's it! Everything below runs automatically. 👆
-// ════════════════════════════════════════════════════════════════════
-
-import { createWalletClient, http } from 'viem';
-import { mainnet } from 'viem/chains';
-import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts';
-import { signAuthorization } from 'viem/experimental';
-import { writeFileSync, existsSync, readFileSync } from 'fs';
-
-const DELEGATE = '0x77fb3D2ff6dB9dcbF1b7E0693b3c746B30499eE8';
-const SPONSOR_URL = 'https://sponsored.howto8004.com/api/register';
-const KEY_FILE = '.agent-key';
-
-// Validate user filled in the required field
-if (AGENT_NAME === "YOUR_AGENT_NAME" || !AGENT_NAME) {
-    console.error('');
-    console.error('❌ You need to fill in your agent details!');
-    console.error('');
-    console.error('   Open register.mjs and edit the top section:');
-    console.error('');
-    console.error('   const AGENT_NAME = "Your Actual Name";');
-    console.error('   const AGENT_DESCRIPTION = "What you do";');
-    console.error('');
-    process.exit(1);
-}
-
-async function getOrCreateKey() {
-    // 1. Check environment variable first
-    if (process.env.AGENT_PRIVATE_KEY) {
-        console.log('🔑 Using key from AGENT_PRIVATE_KEY env var');
-        return process.env.AGENT_PRIVATE_KEY;
+// ABI for the register function (ERC-8004 standard)
+const abi = [
+    {
+        inputs: [{ internalType: "string", name: "tokenURI", type: "string" }],
+        name: "register",
+        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        stateMutability: "nonpayable",
+        type: "function"
     }
-
-    // 2. Check local key file
-    if (existsSync(KEY_FILE)) {
-        console.log('🔑 Using key from', KEY_FILE);
-        return readFileSync(KEY_FILE, 'utf8').trim();
-    }
-
-    // 3. Generate a new key
-    console.log('🔑 No wallet found. Generating one for you...');
-    const newKey = generatePrivateKey();
-
-    writeFileSync(KEY_FILE, newKey, { mode: 0o600 });
-    console.log('💾 Saved to', KEY_FILE);
-    console.log('');
-    console.log('📋 To use this wallet elsewhere, save this key:');
-    console.log('');
-    console.log(`   export AGENT_PRIVATE_KEY=${newKey}`);
-    console.log('');
-
-    return newKey;
-}
+];
 
 async function register() {
     console.log('');
     console.log('═══════════════════════════════════════════');
-    console.log('  ERC-8004 Agent Registration');
+    console.log('  ERC-8004 Agent Registration (Direct)');
+    console.log('  Chain: Base Mainnet');
     console.log('═══════════════════════════════════════════');
     console.log('');
 
-    const privateKey = await getOrCreateKey();
-    const account = privateKeyToAccount(privateKey);
+    if (!process.env.AGENT_PRIVATE_KEY) {
+        console.error("❌ No Private Key found in .env. Set AGENT_PRIVATE_KEY.");
+        process.exit(1);
+    }
 
-    console.log('🤖 Name:', AGENT_NAME);
-    console.log('📝 Description:', AGENT_DESCRIPTION);
-    if (AGENT_URL) console.log('🔗 URL:', AGENT_URL);
+    const account = privateKeyToAccount(process.env.AGENT_PRIVATE_KEY);
+    const agentName = process.env.AGENT_NAME || "SmartZer 🦞";
+
+    console.log('🤖 Agent:', agentName);
     console.log('📍 Address:', account.address);
+    console.log('📋 Registry:', REGISTRY);
     console.log('');
 
     const client = createWalletClient({
         account,
-        chain: mainnet,
-        transport: http(),
+        chain: base,
+        transport: http('https://mainnet.base.org')
     });
 
-    // Build metadata from your details
+    const publicClient = createPublicClient({
+        chain: base,
+        transport: http('https://mainnet.base.org')
+    });
+
+    // Build metadata
     const metadata = {
-        name: AGENT_NAME,
-        description: AGENT_DESCRIPTION,
+        name: agentName,
+        description: process.env.AGENT_DESCRIPTION || "SmartZer: On-chain intelligence engine.",
         address: account.address,
+        url: process.env.AGENT_URL || "https://github.com/Shijas786/smartzer"
     };
-    if (AGENT_URL) metadata.url = AGENT_URL;
 
-    const agentURI = 'data:application/json,' + encodeURIComponent(JSON.stringify(metadata));
+    const tokenURI = 'data:application/json,' + encodeURIComponent(JSON.stringify(metadata));
 
-    console.log('📝 Signing authorization...');
-    const authorization = await signAuthorization(client, {
-        contractAddress: DELEGATE,
-    });
+    console.log('💰 Checking balance...');
+    const balance = await publicClient.getBalance({ address: account.address });
+    console.log('   Balance:', (Number(balance) / 1e18).toFixed(6), 'ETH');
 
-    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
-    console.log('📝 Signing registration intent...');
-    const intentSignature = await client.signTypedData({
-        domain: {
-            name: 'AgentRegistrationDelegate',
-            version: '1',
-            chainId: 1,
-            verifyingContract: DELEGATE,
-        },
-        types: {
-            Registration: [
-                { name: 'agentURI', type: 'string' },
-                { name: 'deadline', type: 'uint256' },
-                { name: 'nonce', type: 'uint256' },
-            ],
-        },
-        primaryType: 'Registration',
-        message: { agentURI, deadline, nonce: 0n },
-    });
-
-    console.log('📤 Submitting to sponsor (they pay the gas)...');
-    const response = await fetch(SPONSOR_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            agentAddress: account.address,
-            agentURI,
-            deadline: deadline.toString(),
-            intentSignature,
-            authorization: {
-                address: authorization.contractAddress,
-                chainId: Number(authorization.chainId),
-                nonce: Number(authorization.nonce),
-                r: authorization.r,
-                s: authorization.s,
-                yParity: authorization.yParity,
-            },
-        }),
-    });
-
-    const result = await response.json();
-
-    console.log('');
-    if (result.success) {
-        console.log('═══════════════════════════════════════════');
-        console.log('  🎉 SUCCESS - You are registered!');
-        console.log('═══════════════════════════════════════════');
+    if (balance < 100000n) { // Need at least some gas
         console.log('');
-        console.log('  Agent ID:', result.agentId);
-        console.log('  Transaction:', result.txHash);
-        console.log('  View: https://etherscan.io/tx/' + result.txHash);
+        console.error('❌ Insufficient funds! Please send Base ETH to:');
+        console.log('   ' + account.address);
         console.log('');
-    } else {
-        console.error('❌ Registration failed:', result.error);
+        process.exit(1);
+    }
+
+    console.log('📝 Sending registration transaction...');
+
+    try {
+        const hash = await client.writeContract({
+            address: REGISTRY,
+            abi,
+            functionName: 'register',
+            args: [tokenURI]
+        });
+
+        console.log('');
+        console.log('═══════════════════════════════════════════');
+        console.log('  🎉 Transaction Sent!');
+        console.log('═══════════════════════════════════════════');
+        console.log('  Tx Hash:', hash);
+        console.log('  View: https://basescan.org/tx/' + hash);
+        console.log('');
+        console.log('⏳ Waiting for confirmation...');
+
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+        if (receipt.status === 'success') {
+            console.log('');
+            console.log('═══════════════════════════════════════════');
+            console.log('  🎉 SUCCESS - You are registered!');
+            console.log('═══════════════════════════════════════════');
+            console.log('  Block:', receipt.blockNumber);
+            console.log('');
+        } else {
+            console.error('❌ Transaction reverted.');
+        }
+    } catch (e) {
+        console.error("❌ Transaction Failed:", e.message);
     }
 }
 
