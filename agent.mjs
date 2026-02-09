@@ -4,6 +4,46 @@ import { getWalletPnL, getWhaleSignals } from './lib/zerion.mjs';
 import { executeAutomatedTrade } from './lib/trade.mjs';
 import { supabase, logIntelligence, updateMetric } from './lib/supabase.mjs';
 
+// Cache market data to save Zerion credits
+async function cacheTrendingTokens(apiKey) {
+    try {
+        const url = new URL(`https://api.zerion.io/v1/fungibles/`);
+        url.searchParams.append('filter[implementation_chain_id]', 'base');
+        url.searchParams.append('sort', '-market_data.price.percent_change_1d');
+        url.searchParams.append('page[size]', '6');
+        const auth = Buffer.from(`${apiKey}:`).toString('base64');
+        const response = await fetch(url.toString(), {
+            headers: { 'Authorization': `Basic ${auth}`, 'accept': 'application/json' }
+        });
+        const data = await response.json();
+        if (data.data) {
+            // Using logs table as a temporary cache storage to avoid schema mismatch
+            const cacheKey = `[MARKET_CACHE] ${JSON.stringify(data)}`;
+            await logIntelligence(cacheKey);
+            return true;
+        }
+    } catch (e) {
+        console.error("Cache Error:", e);
+    }
+    return false;
+}
+
+// Refresh Whale PnL from Zerion
+async function updateWhaleStats(whales, apiKey) {
+    for (let whale of whales) {
+        try {
+            const pnl = await getWalletPnL(whale.address, apiKey);
+            if (pnl?.total?.value) {
+                const table = whale.label ? 'anonymous_super_traders' : 'followed_traders';
+                await supabase.from(table).update({ pnl: pnl.total.value }).eq('id', whale.id);
+                console.log(`📊 Updated Stats for ${whale.label || whale.username}: $${pnl.total.value.toLocaleString()}`);
+            }
+        } catch (e) {
+            console.error(`Failed to update stats for ${whale.id}:`, e.message);
+        }
+    }
+}
+
 const SIMULATION_MODE = false; // 🚀 LIVE PRODUCTION MODE ENABLED
 
 // Load initial state from DB
@@ -60,6 +100,8 @@ async function main() {
             let state = await getDBState();
 
             await logIntelligence("🔄 Initializing high-velocity intelligence scan...");
+            await cacheTrendingTokens(config.zerionKey); // 🛡️ Load Market Cache for Dashboard
+            await updateWhaleStats(state.anonymousSuperTraders, config.zerionKey); // 🔱 Refresh Whale PnL
 
             // --- PART 1: Intelligence Scan & Verification ---
             if (config.fid && config.neynarKey) {

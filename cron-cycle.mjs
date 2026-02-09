@@ -45,7 +45,10 @@ async function cacheTrendingTokens(apiKey) {
 
         const data = await response.json();
         if (data.data) {
-            await updateMetric('cached_trending_base', JSON.stringify(data), false);
+            // Using logs table as a temporary cache storage to avoid schema mismatch
+            console.log(`[${new Date().toLocaleTimeString()}] 🛡️ Caching Market Data (Zerion Credit Saver)`);
+            const cacheKey = `[MARKET_CACHE] ${JSON.stringify(data)}`;
+            await supabase.from('logs').insert({ id: Date.now(), text: cacheKey });
             return true;
         }
     } catch (e) {

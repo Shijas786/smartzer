@@ -72,6 +72,23 @@ async function updateDashboard() {
             document.getElementById('zer-score').closest('.status-badge').style.borderColor = 'rgba(0, 230, 118, 0.4)';
         }
 
+        // 6. Market Volatility (Trending Assets)
+        if (state.trending && state.trending.length > 0) {
+            const marketWatch = document.getElementById('market-watch');
+            marketWatch.innerHTML = state.trending.map(t => `
+                <div class="metric-card" style="min-width: 200px; padding: 1rem; flex-shrink: 0;">
+                    <div style="display:flex; align-items:center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <img src="${t.attributes.icon?.url || ''}" style="width:16px; height:16px; border-radius:50%; background: #222;">
+                        <div class="metric-label" style="margin:0">${t.attributes.symbol}</div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                        <div style="font-size: 1rem; font-weight: 700;">$${t.attributes.market_data.price.toFixed(4)}</div>
+                        <div style="font-size: 0.75rem; color: var(--success); font-weight: 600;">+${t.attributes.market_data.changes.percent_1d.toFixed(1)}%</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
     } catch (error) {
         console.error("HUD Sync Error:", error);
         const logContainer = document.getElementById('thought-log');
