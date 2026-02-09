@@ -110,9 +110,13 @@ async function main() {
                 }
             }
 
+            // Track last seen signals in memory to avoid missing DB column issues
+            if (!global.whaleCache) global.whaleCache = new Map();
+
             // --- PART 2: Whale Mirroring ---
             for (let whale of state.anonymousSuperTraders) {
                 const signals = await getWhaleSignals(whale.address, config.zerionKey);
+                const lastSeen = global.whaleCache.get(whale.address) || state.lastCheck;
 
                 // 🕵️ Attempt Identity Resolution (Username recovery)
                 let identifiedLabel = whale.label;
@@ -126,13 +130,13 @@ async function main() {
                 }
 
                 // Track ALL new activity for the Feed
-                const newActivity = signals.filter(s => (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
+                const newActivity = signals.filter(s => s.timestamp > lastSeen);
                 for (const activity of newActivity) {
                     await logIntelligence(`[WHALE_FEED] ${identifiedLabel} (${whale.address}) ${activity.side} $${activity.symbol} on ${activity.chainId}`);
                 }
 
                 // 🎯 REPLICATED SIGNALS (Only true trades)
-                const newSignal = signals.find(s => s.isTrade && (!whale.last_seen_timestamp || s.timestamp > whale.last_seen_timestamp));
+                const newSignal = signals.find(s => s.isTrade && s.timestamp > lastSeen);
                 if (newSignal) {
                     await logIntelligence(`🎯 SIGNAL: ${newSignal.side} $${newSignal.symbol}`);
                     let txHash = "0x_sim_" + Math.random().toString(16).slice(2);
@@ -141,7 +145,7 @@ async function main() {
                         if (result.success) txHash = result.hash;
                     }
                     await supabase.from('replicated_trades').insert({
-                        trader: whale.label,
+                        trader: identifiedLabel,
                         token: newSignal.symbol || "Unknown",
                         side: newSignal.side,
                         tx_hash: txHash,
@@ -150,9 +154,9 @@ async function main() {
                     });
                 }
 
-                // Update last seen to the absolute latest transaction regardless of type
+                // Update in-memory tracker
                 if (signals.length > 0) {
-                    await supabase.from('anonymous_super_traders').update({ last_seen_timestamp: signals[0].timestamp }).eq('id', whale.id);
+                    global.whaleCache.set(whale.address, signals[0].timestamp);
                 }
             }
 
