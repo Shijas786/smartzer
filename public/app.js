@@ -13,8 +13,9 @@ async function updateDashboard() {
         let alphaHTML = '';
 
         if (state.anonymousSuperTraders && state.anonymousSuperTraders.length > 0) {
+            const sortedWhales = [...state.anonymousSuperTraders].sort((a, b) => (b.pnl || 0) - (a.pnl || 0));
             alphaHTML += `<div style="font-size: 0.65rem; color: var(--accent); margin-bottom: 0.75rem; font-weight: 700;">🐋 WHALE WALLETS</div>`;
-            alphaHTML += state.anonymousSuperTraders.slice(0, 10).map(t => `
+            alphaHTML += sortedWhales.slice(0, 10).map(t => `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem;">
                     <span style="color: var(--text-primary)">${t.label}</span>
                     <span style="color: var(--success); font-weight: 600;">+$${(t.pnl || 0).toLocaleString()}</span>
