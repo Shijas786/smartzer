@@ -17,7 +17,7 @@ async function updateDashboard() {
             alphaHTML += state.anonymousSuperTraders.slice(0, 3).map(t => `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem;">
                     <span style="color: var(--text-primary)">${t.label}</span>
-                    <span style="color: var(--success); font-weight: 600;">+$${t.pnl.toLocaleString()}</span>
+                    <span style="color: var(--success); font-weight: 600;">+$${(t.pnl || 0).toLocaleString()}</span>
                 </div>
             `).join('');
         }
@@ -27,13 +27,37 @@ async function updateDashboard() {
             alphaHTML += state.followedTraders.slice(0, 5).map(t => `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem;">
                     <span style="color: var(--text-primary)">@${t.username}</span>
-                    <span style="color: var(--success); font-weight: 600;">+$${t.pnl.toLocaleString()}</span>
+                    <span style="color: var(--success); font-weight: 600;">+$${(t.pnl || 0).toLocaleString()}</span>
                 </div>
             `).join('');
         }
 
         if (alphaHTML === '') alphaHTML = '<div style="opacity:0.4; font-size: 0.8rem;">No active targets.</div>';
         alphaList.innerHTML = alphaHTML;
+
+        // Populate Identity Registry
+        const identityList = document.getElementById('tab-identity');
+        if (identityList) {
+            const resolved = [...(state.followedTraders || []), ...(state.anonymousSuperTraders || []).filter(t => t.label?.startsWith('@'))];
+            if (resolved.length > 0) {
+                const inner = identityList.querySelector('.section-card');
+                if (inner) {
+                    inner.innerHTML = `<div class="card-header"><div class="card-title">RESOLVED PROFILES</div></div>` +
+                        `<div class="scroll-area">` +
+                        resolved.map(r => `
+                        <div style="display:flex; align-items:center; gap:1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <div style="width:32px; height:32px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:bold;">${(r.username || r.label).replace('@', '')[0].toUpperCase()}</div>
+                            <div>
+                                <div style="font-weight:600; color:var(--text-primary)">${r.username || r.label}</div>
+                                <div style="font-size:0.7rem; color:var(--text-dim)">${r.address}</div>
+                            </div>
+                            <div style="margin-left:auto; font-size:0.75rem; color:var(--success)">VERIFIED</div>
+                        </div>
+                    `).join('') + `</div>`;
+                    inner.style.opacity = "1";
+                }
+            }
+        }
 
         // 3. Trade Stream Rendering (Modern Style)
         const tradeGrid = document.getElementById('replicated-trades');

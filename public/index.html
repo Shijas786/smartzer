@@ -54,9 +54,15 @@
             <div class="breadcrumb">
                 App <span>/</span> <b style="color: var(--text-primary)">Dashboard</b>
             </div>
-            <div class="status-badge">
-                <span class="pulse">●</span>
-                <span id="zer-score">CALIBRATING KERNEL...</span>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button onclick="updateDashboard()"
+                    style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); padding: 0.35rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;">
+                    <span>🔃</span> Refresh
+                </button>
+                <div class="status-badge">
+                    <span class="pulse">●</span>
+                    <span id="zer-score">CALIBRATING KERNEL...</span>
+                </div>
             </div>
         </header>
 
