@@ -35,25 +35,38 @@ async function updateDashboard() {
         if (alphaHTML === '') alphaHTML = '<div style="opacity:0.4; font-size: 0.8rem;">No active targets.</div>';
         alphaList.innerHTML = alphaHTML;
 
-        // Populate Identity Registry
+        // Populate Identity Registry (Leaderboard Style)
         const identityList = document.getElementById('tab-identity');
         if (identityList) {
-            const resolved = [...(state.followedTraders || []), ...(state.anonymousSuperTraders || []).filter(t => t.label?.startsWith('@'))];
-            if (resolved.length > 0) {
+            const allTraders = [
+                ...(state.followedTraders || []).map(t => ({ ...t, name: `@${t.username}`, type: 'SOCIAL' })),
+                ...(state.anonymousSuperTraders || []).map(t => ({ ...t, name: t.label, type: 'WHALE' }))
+            ].sort((a, b) => (b.pnl || 0) - (a.pnl || 0));
+
+            if (allTraders.length > 0) {
                 const inner = identityList.querySelector('.section-card');
                 if (inner) {
-                    inner.innerHTML = `<div class="card-header"><div class="card-title">RESOLVED PROFILES</div></div>` +
-                        `<div class="scroll-area">` +
-                        resolved.map(r => `
-                        <div style="display:flex; align-items:center; gap:1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
-                            <div style="width:32px; height:32px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:bold;">${(r.username || r.label).replace('@', '')[0].toUpperCase()}</div>
-                            <div>
-                                <div style="font-weight:600; color:var(--text-primary)">${r.username || r.label}</div>
-                                <div style="font-size:0.7rem; color:var(--text-dim)">${r.address}</div>
-                            </div>
-                            <div style="margin-left:auto; font-size:0.75rem; color:var(--success)">VERIFIED</div>
+                    inner.innerHTML = `
+                        <div class="card-header">
+                            <div class="card-title">SMARTZER GLOBAL LEADERBOARD</div>
+                            <div style="font-size: 0.65rem; color: var(--accent); font-weight: 700;">RANKED BY PORTFOLIO PNL</div>
                         </div>
-                    `).join('') + `</div>`;
+                        <div class="scroll-area">
+                            ${allTraders.map((r, i) => `
+                                <div style="display:flex; align-items:center; gap:1rem; padding: 1rem; border-bottom: 1px solid var(--border); transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(0,186,255,0.05)'" onmouseout="this.style.background='transparent'">
+                                    <div style="font-family: monospace; font-weight: 800; color: var(--accent); width: 25px;">#${i + 1}</div>
+                                    <div style="width:36px; height:36px; border-radius:50%; background: ${r.type === 'WHALE' ? 'linear-gradient(45deg, #00B9FF, #0077FF)' : 'linear-gradient(45deg, #FF00E5, #7000FF)'}; display:flex; align-items:center; justify-content:center; font-weight:bold; color: white;">${r.name.replace('@', '')[0].toUpperCase()}</div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight:700; color:var(--text-primary)">${r.name}</div>
+                                        <div style="font-size:0.65rem; color:var(--text-dim); font-family: monospace; letter-spacing: 1px;">${r.address.slice(0, 6)}...${r.address.slice(-4)}</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-weight:700; color:var(--success); font-size: 0.9rem;">$${(r.pnl || 0).toLocaleString()}</div>
+                                        <div style="font-size: 0.55rem; color: var(--accent); font-weight: 800; text-transform: uppercase;">${r.type} ALPHA</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>`;
                     inner.style.opacity = "1";
                 }
             }
